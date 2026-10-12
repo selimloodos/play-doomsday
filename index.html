@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Play Doomsday Clock</title>
+<meta name="description" content="A countdown to the day our developer profile and all apps get removed from Google Play. Action required. Action taken: none.">
+<meta property="og:title" content="☠ Play Doomsday Clock">
+<meta property="og:description" content="Your developer profile and all apps will be removed from Google Play on October 14, 2026. Upper management has been notified. Upper management has gone to lunch.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#050507">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%98%A0%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Creepster&family=Share+Tech+Mono&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050507;
+    --bg-2: #0d0a0c;
+    --panel: rgba(255, 255, 255, 0.035);
+    --panel-border: rgba(255, 255, 255, 0.08);
+    --fg: #ece6e6;
+    --muted: #9a8f91;
+    --blood: #c5221f;
+    --blood-2: #ff2d2a;
+    --blood-glow: rgba(255, 45, 42, 0.55);
+    --ember: #ff8a3d;
+    --ok: #5daa43;
+    --font-title: "Creepster", "Impact", system-ui, sans-serif;
+    --font-mono: "Share Tech Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --gutter: 16px;
+    --shake: 0px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(ellipse at 50% -10%, rgba(197, 34, 31, 0.28), transparent 55%),
+      radial-gradient(ellipse at 50% 120%, rgba(197, 34, 31, 0.18), transparent 50%);
+  }
+
+  /* --- atmosphere ------------------------------------------------------ */
+  #void {
+    position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%;
+    pointer-events: none;
+  }
+  .scanlines {
+    position: fixed; inset: 0; z-index: 2; pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,0,0,0.18) 3px, rgba(0,0,0,0) 4px);
+    mix-blend-mode: multiply;
+    opacity: .7;
+  }
+  .vignette {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.85) 100%);
+  }
+  .strobe {
+    position: fixed; inset: 0; z-index: 3; pointer-events: none;
+    background: var(--blood);
+    opacity: 0;
+  }
+  body.doom .strobe { animation: strobe 1.2s steps(2, end) infinite; }
+  @keyframes strobe { 0%, 50% { opacity: 0; } 50.1%, 100% { opacity: .06; } }
+
+  /* --- layout ----------------------------------------------------------- */
+  .page {
+    position: relative; z-index: 4;
+    max-width: 960px; margin: 0 auto;
+    padding: 40px var(--gutter) 64px;
+    transform: translate(var(--shake), calc(var(--shake) * -1));
+  }
+  body.panic .page { animation: shake .35s infinite; }
+  body.doom .page  { animation: shake .12s infinite; }
+  @keyframes shake {
+    0%   { transform: translate(0, 0); }
+    25%  { transform: translate(1.5px, -1px); }
+    50%  { transform: translate(-1px, 1.5px); }
+    75%  { transform: translate(1px, 1px); }
+    100% { transform: translate(0, 0); }
+  }
+
+  header { text-align: center; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 16px; border-radius: 999px;
+    background: var(--blood); color: #fff;
+    font-weight: 800; letter-spacing: .14em; font-size: 12px; text-transform: uppercase;
+    box-shadow: 0 0 24px var(--blood-glow), inset 0 0 0 1px rgba(255,255,255,.15);
+    animation: flicker 3.5s infinite;
+  }
+  .badge .dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; animation: blink 1s steps(2, end) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes flicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; filter: none; }
+    20%, 24%, 55% { opacity: .55; filter: blur(.5px); }
+  }
+
+  h1 {
+    font-family: var(--font-title);
+    font-weight: 400;
+    font-size: clamp(56px, 12vw, 128px);
+    line-height: .95;
+    margin: 20px 0 10px;
+    color: var(--blood-2);
+    text-shadow: 0 0 18px var(--blood-glow), 0 0 60px rgba(255,45,42,.25), 2px 2px 0 #3a0505;
+    position: relative;
+    letter-spacing: .02em;
+  }
+  h1::before, h1::after {
+    content: attr(data-text);
+    position: absolute; inset: 0;
+    color: var(--blood-2);
+    opacity: .0;
+    pointer-events: none;
+  }
+  h1::before { text-shadow: -2px 0 #2ad1ff; clip-path: inset(10% 0 60% 0); animation: glitch-a 4s infinite linear alternate-reverse; }
+  h1::after  { text-shadow: 2px 0 #ff2bd6;  clip-path: inset(60% 0 10% 0); animation: glitch-b 5s infinite linear alternate-reverse; }
+  @keyframes glitch-a {
+    0%, 88%, 100% { opacity: 0; transform: none; }
+    89% { opacity: .9; transform: translate(-6px, 0); clip-path: inset(12% 0 55% 0); }
+    92% { opacity: .9; transform: translate(5px, 0);  clip-path: inset(40% 0 30% 0); }
+    95% { opacity: .9; transform: translate(-3px, 0); clip-path: inset(70% 0 5% 0); }
+    96% { opacity: 0; }
+  }
+  @keyframes glitch-b {
+    0%, 78%, 100% { opacity: 0; transform: none; }
+    80% { opacity: .9; transform: translate(6px, 0);  clip-path: inset(5% 0 80% 0); }
+    83% { opacity: .9; transform: translate(-5px, 0); clip-path: inset(50% 0 20% 0); }
+    86% { opacity: .9; transform: translate(2px, 0);  clip-path: inset(30% 0 45% 0); }
+    87% { opacity: 0; }
+  }
+
+  .sub {
+    max-width: 640px; margin: 0 auto;
+    color: var(--muted); font-size: 16px; line-height: 1.55;
+  }
+  .sub strong { color: var(--fg); }
+
+  /* --- countdown ------------------------------------------------------- */
+  .clock {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    margin: 40px auto 12px; max-width: 760px;
+  }
+  .cell {
+    background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    border: 1px solid var(--panel-border);
+    border-radius: 14px; padding: 18px 8px 14px;
+    text-align: center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 10px 40px rgba(0,0,0,.5);
+    position: relative; overflow: hidden;
+  }
+  .cell::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 48%, rgba(0,0,0,.35) 50%, transparent 52%);
+    pointer-events: none;
+  }
+  .num {
+    font-family: var(--font-mono);
+    font-size: clamp(44px, 9vw, 84px);
+    line-height: 1; color: var(--fg);
+    text-shadow: 0 0 12px rgba(255,255,255,.35);
+    font-variant-numeric: tabular-nums;
+  }
+  body.doom .num, body.over .num { color: var(--blood-2); text-shadow: 0 0 14px var(--blood-glow); }
+  .lbl { margin-top: 8px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+  .num.tick { animation: tick .25s ease-out; }
+  @keyframes tick { 0% { transform: translateY(-4px); filter: brightness(1.6); } 100% { transform: none; filter: none; } }
+
+  .deadline-line {
+    text-align: center; font-family: var(--font-mono); color: var(--muted); font-size: 13px;
+  }
+  .deadline-line span { color: var(--fg); }
+
+  /* --- panic meter ----------------------------------------------------- */
+  .meter { max-width: 760px; margin: 36px auto 0; }
+  .meter-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .meter-head h2 { margin: 0; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .level { font-family: var(--font-mono); font-size: 15px; color: var(--blood-2); text-transform: uppercase; letter-spacing: .08em; }
+  .bar { height: 14px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid var(--panel-border); margin: 10px 0 8px; overflow: hidden; position: relative; }
+  .bar > i {
+    display: block; height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--ok), #d9a300 45%, var(--ember) 70%, var(--blood-2));
+    box-shadow: 0 0 16px var(--blood-glow);
+    transition: width 1s linear;
+  }
+  .bar::after {
+    content: ""; position: absolute; inset: 0;
+    background: repeating-linear-gradient(90deg, transparent 0 18px, rgba(0,0,0,.35) 18px 20px);
+    pointer-events: none;
+  }
+  .meter-note { color: var(--muted); font-size: 14px; margin: 0; min-height: 1.4em; }
+
+  /* --- status ticker --------------------------------------------------- */
+  .ticker {
+    max-width: 760px; margin: 28px auto 0;
+    font-family: var(--font-mono); font-size: clamp(14px, 2.4vw, 18px);
+    color: var(--fg); min-height: 3em;
+    background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .ticker .prompt { color: var(--blood-2); }
+  .ticker .cursor { display: inline-block; width: .6em; height: 1.05em; background: var(--fg); vertical-align: -0.15em; margin-left: 2px; animation: blink 1s steps(2, end) infinite; }
+
+  /* --- grid of panels -------------------------------------------------- */
+  .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 760px; margin: 28px auto 0; }
+  .panel {
+    background: var(--panel); border: 1px solid var(--panel-border); border-radius: 14px; padding: 18px;
+  }
+  .panel h3 { margin: 0 0 12px; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+
+  .log { list-style: none; margin: 0; padding: 0; font-family: var(--font-mono); font-size: 13px; line-height: 1.6; }
+  .log li { display: grid; grid-template-columns: 56px 1fr; gap: 10px; padding: 3px 0; color: var(--muted); }
+  .log li b { font-weight: 400; color: var(--muted); }
+  .log li.done { color: var(--fg); }
+  .log li.done b { color: var(--blood-2); }
+  .log li.now { color: var(--fg); }
+  .log li.now b { color: var(--ember); }
+  .log li.now::after { content: "◀ you are here"; grid-column: 2; color: var(--ember); font-size: 12px; }
+  .log li.future { opacity: .5; }
+
+  .fix { list-style: none; margin: 0; padding: 0; font-size: 14px; line-height: 1.7; }
+  .fix li { display: flex; gap: 10px; align-items: flex-start; color: var(--fg); }
+  .fix li .box { flex: none; width: 16px; height: 16px; border: 1.5px solid var(--muted); border-radius: 4px; margin-top: 4px; position: relative; }
+  .fix li.nope .box::after { content: "✕"; position: absolute; inset: 0; display: grid; place-items: center; color: var(--blood-2); font-size: 12px; font-weight: 800; }
+  .fix li small { display: block; color: var(--muted); font-size: 12px; }
+
+  /* --- escalate -------------------------------------------------------- */
+  .escalate { max-width: 760px; margin: 28px auto 0; text-align: center; }
+  .btn {
+    appearance: none; border: 0; cursor: pointer;
+    font: 800 15px/1 var(--font-body); letter-spacing: .06em; text-transform: uppercase;
+    padding: 16px 28px; border-radius: 999px;
+    background: var(--blood); color: #fff;
+    box-shadow: 0 0 30px var(--blood-glow), inset 0 1px 0 rgba(255,255,255,.2);
+    transition: transform .08s ease, box-shadow .2s ease;
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 0 44px var(--blood-glow); }
+  .btn:active { transform: translateY(1px) scale(.98); }
+  .btn.secondary { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 1px var(--panel-border); }
+  .stats { margin-top: 12px; font-family: var(--font-mono); font-size: 14px; color: var(--muted); }
+  .stats b { color: var(--fg); font-weight: 400; }
+  .stats .zero { color: var(--blood-2); }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; z-index: 10;
+    transform: translate(-50%, 20px); opacity: 0;
+    background: #1a1214; color: var(--fg); border: 1px solid var(--panel-border);
+    border-left: 3px solid var(--blood-2);
+    padding: 12px 16px; border-radius: 10px; font-size: 14px;
+    max-width: min(92vw, 420px);
+    box-shadow: 0 20px 60px rgba(0,0,0,.6);
+    transition: transform .25s ease, opacity .25s ease;
+    pointer-events: none;
+  }
+  .toast.show { transform: translate(-50%, 0); opacity: 1; }
+  .toast .from { display: block; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+
+  footer {
+    max-width: 760px; margin: 48px auto 0; text-align: center;
+    color: var(--muted); font-size: 12px; line-height: 1.7;
+  }
+  footer a { color: var(--muted); }
+
+  /* --- over state ------------------------------------------------------ */
+  .only-over { display: none; }
+  body.over .only-over { display: block; }
+  body.over .only-live { display: none; }
+  .tomb {
+    max-width: 760px; margin: 28px auto 0; text-align: center;
+    background: var(--panel); border: 1px solid var(--panel-border); border-radius: 14px; padding: 24px 18px;
+  }
+  .tomb .rip { font-family: var(--font-title); font-size: clamp(36px, 8vw, 64px); color: var(--fg); margin: 0; letter-spacing: .04em; }
+  .tomb p { color: var(--muted); margin: 10px 0 0; }
+  .tomb .f { font-family: var(--font-mono); margin-top: 14px; color: var(--fg); }
+
+  @media (max-width: 640px) {
+    .clock { grid-template-columns: repeat(2, 1fr); }
+    .panels { grid-template-columns: 1fr; }
+    .page { padding-top: 28px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    #void { display: none; }
+  }
+</style>
+</head>
+<body>
+<canvas id="void" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
+<div class="strobe" aria-hidden="true"></div>
+
+<main class="page">
+  <header>
+    <span class="badge"><span class="dot"></span> Action required</span>
+    <h1 data-text="DOOMSDAY CLOCK">DOOMSDAY CLOCK</h1>
+    <p class="sub only-live">
+      <strong>Your developer profile and all apps will be removed from Google Play on October 14, 2026.</strong><br>
+      Verification takes about five minutes. The decision to do it has taken somewhat longer.
+    </p>
+    <p class="sub only-over">
+      <strong>October 14, 2026 has come and gone.</strong><br>
+      The apps are gone. Or they aren't. Nobody has checked the Play Console, because nobody ever does.
+    </p>
+  </header>
+
+  <section class="clock" aria-live="off">
+    <div class="cell"><div class="num" id="d">00</div><div class="lbl">days</div></div>
+    <div class="cell"><div class="num" id="h">00</div><div class="lbl">hours</div></div>
+    <div class="cell"><div class="num" id="m">00</div><div class="lbl">minutes</div></div>
+    <div class="cell"><div class="num" id="s">00</div><div class="lbl">seconds</div></div>
+  </section>
+  <p class="deadline-line only-live">until removal · <span id="deadline-local"></span></p>
+  <p class="deadline-line only-over">since removal · time flies when nobody is responsible</p>
+
+  <section class="meter">
+    <div class="meter-head">
+      <h2>Panic level</h2>
+      <span class="level" id="level">calibrating…</span>
+    </div>
+    <div class="bar"><i id="fill"></i></div>
+    <p class="meter-note" id="level-note"></p>
+  </section>
+
+  <section class="ticker" aria-live="polite">
+    <span class="prompt">&gt;</span> <span id="line"></span><span class="cursor"></span>
+  </section>
+
+  <section class="tomb only-over">
+    <p class="rip">R.I.P.</p>
+    <p>Here lie the apps. Removed for a form nobody filled in.</p>
+    <p class="f">Press <kbd>F</kbd> to pay respects · respects paid: <span id="respects">0</span></p>
+  </section>
+
+  <section class="panels">
+    <div class="panel">
+      <h3>Escalation log</h3>
+      <ul class="log" id="log">
+        <li data-t="90"><b>T-90d</b>Warning appears in the console. Everyone sees it. Everyone scrolls past.</li>
+        <li data-t="60"><b>T-60d</b>Developer sends an email. Subject line: "URGENT". It is marked as read.</li>
+        <li data-t="45"><b>T-45d</b>The email receives a 👀 reaction. Momentum.</li>
+        <li data-t="30"><b>T-30d</b>Meeting scheduled to discuss scheduling a meeting.</li>
+        <li data-t="14"><b>T-14d</b>"Let's handle it next sprint." Sprint ends. It is handled by no one.</li>
+        <li data-t="7"><b>T-7d</b>"Who owns this?" Silence. The silence owns this.</li>
+        <li data-t="3"><b>T-3d</b>Developer builds a countdown website instead of sleeping.</li>
+        <li data-t="1"><b>T-1d</b>Someone finally clicks "View details". They close the tab.</li>
+        <li data-t="0"><b>T-0</b>Removal. Management: "Why weren't we told?"</li>
+        <li data-t="-1"><b>T+1d</b>Retro scheduled. Action item: "Be more proactive." Owner: TBD.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Remediation plan</h3>
+      <ul class="fix">
+        <li class="nope"><span class="box"></span><span>Click "View details"<small>Blocked: button is red, which feels aggressive.</small></span></li>
+        <li class="nope"><span class="box"></span><span>Re-verify organization name and address<small>Blocked: we need to align on which address we are.</small></span></li>
+        <li class="nope"><span class="box"></span><span>Upload one (1) document<small>Blocked: legal is reviewing whether the document exists.</small></span></li>
+        <li class="nope"><span class="box"></span><span>Press "Submit"<small>Blocked: pending approval to seek approval.</small></span></li>
+        <li><span class="box"></span><span>Build a countdown page about it<small>✓ Done. Priorities.</small></span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="escalate">
+    <button class="btn" id="escalate" type="button">🚨 Escalate to upper management</button>
+    <button class="btn secondary" id="share" type="button">Copy link</button>
+    <p class="stats">Escalations sent: <b id="sent">0</b> · Replies received: <b class="zero" id="replies">0</b> · Problems solved: <b class="zero">0</b></p>
+  </section>
+
+  <footer>
+    Not affiliated with Google. Not affiliated with anyone with signing authority, which is the whole problem.<br>
+    Deadline assumed at 00:00 Istanbul time on October 14, 2026, because the email didn't say.<br>
+    Made with 😱 by a developer who is not allowed to click the button.
+  </footer>
+</main>
+
+<div class="toast" id="toast" role="status"><span class="from">Reply from upper management</span><span id="toast-msg"></span></div>
+
+<script>
+(() => {
+  // The notice only says "October 14, 2026". Start of day, Istanbul time.
+  // ?deadline=<ISO date> previews another date (e.g. the aftermath).
+  const override = new Date(new URLSearchParams(location.search).get('deadline') || NaN);
+  const DEADLINE = isNaN(override) ? new Date('2026-10-14T00:00:00+03:00') : override;
+  const HORIZON_DAYS = 30; // the panic meter fills over the last 30 days
+
+  const $ = (id) => document.getElementById(id);
+  const pad = (n) => String(n).padStart(2, '0');
+  const els = { d: $('d'), h: $('h'), m: $('m'), s: $('s') };
+  const body = document.body;
+
+  $('deadline-local').textContent = DEADLINE.toLocaleString(undefined, {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short'
+  });
+
+  // ---- countdown ---------------------------------------------------------
+  const last = {};
+  function setNum(k, v) {
+    const t = pad(v);
+    if (last[k] === t) return;
+    last[k] = t;
+    const el = els[k];
+    el.textContent = t;
+    el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick');
+  }
+
+  const LEVELS = [
+    { min: 30 * 864e5, name: 'Mild concern',   note: 'Plenty of time. Famous last words.' },
+    { min: 7 * 864e5,  name: 'Growing unease', note: 'Someone should probably do something. Someone is a role, not a person.' },
+    { min: 2 * 864e5,  name: 'Active panic',   note: 'Everyone is aware. Nobody is responsible. Both facts are stable.' },
+    { min: 1 * 864e5,  name: 'DEFCON 2',       note: 'Verification takes five minutes. We have one day. The odds are not about time.' },
+    { min: 36e5,       name: 'DEFCON 1',       note: 'Please click the button. Any button. We are no longer picky.' },
+    { min: 0,          name: 'Acceptance',     note: 'It was a good run. The run was not verified either.' },
+  ];
+
+  function levelFor(remaining) {
+    if (remaining <= 0) return { name: 'Post-apocalypse', note: 'The apps are gone. The meetings continue.' };
+    return LEVELS.find(l => remaining >= l.min) || LEVELS[LEVELS.length - 1];
+  }
+
+  let wasOver = null;
+  function tick() {
+    let diff = DEADLINE - Date.now();
+    const over = diff <= 0;
+    if (over) diff = -diff;
+
+    setNum('d', Math.floor(diff / 864e5));
+    setNum('h', Math.floor(diff / 36e5) % 24);
+    setNum('m', Math.floor(diff / 6e4) % 60);
+    setNum('s', Math.floor(diff / 1e3) % 60);
+
+    const remaining = DEADLINE - Date.now();
+    body.classList.toggle('over', over);
+    body.classList.toggle('doom', !over && remaining < 36e5);
+    body.classList.toggle('panic', !over && remaining >= 36e5 && remaining < 864e5);
+
+    const lvl = levelFor(remaining);
+    $('level').textContent = lvl.name;
+    $('level-note').textContent = lvl.note;
+    const pct = over ? 100 : Math.max(2, Math.min(100, 100 * (1 - remaining / (HORIZON_DAYS * 864e5))));
+    $('fill').style.width = pct.toFixed(2) + '%';
+
+    // T-n is in the past once fewer than n days remain; the latest past entry is "now".
+    const daysLeft = remaining / 864e5;
+    let latest = null;
+    document.querySelectorAll('#log li').forEach(li => {
+      const past = Number(li.dataset.t) > daysLeft;
+      li.classList.remove('now');
+      li.classList.toggle('done', past);
+      li.classList.toggle('future', !past);
+      if (past) latest = li;
+    });
+    if (latest) latest.classList.add('now');
+
+    if (wasOver !== over) { wasOver = over; restartTicker(); }
+    document.title = over ? '☠ IT IS DONE — Play Doomsday Clock'
+      : `${pad(Math.floor(diff / 864e5))}d ${pad(Math.floor(diff / 36e5) % 24)}h ${pad(Math.floor(diff / 6e4) % 60)}m — Play Doomsday Clock`;
+  }
+  // ---- status ticker -------------------------------------------------------
+  const LIVE_LINES = [
+    'Status: action required. Action taken: none.',
+    'Upper management has been notified. Upper management has gone to lunch.',
+    'The "View details" button remains unclicked. It has feelings too.',
+    'Fun fact: verification takes 5 minutes. Deciding to verify has taken a quarter.',
+    'Someone is "looking into it". They have been looking since the warning appeared.',
+    'Current escalation level: passive-aggressive emoji reaction.',
+    'Google: "To help keep users safe." Us: "To help keep calendars full."',
+    'It\'s not a bug. It\'s an org chart.',
+    'minSdk: 24. Minimum urgency: 0.',
+    'Rollback plan: there is no rollback plan. There is also no plan.',
+    'This message will self-destruct. So will the apps.',
+    'Blocked by: a form. Unblocked by: no one.',
+    'Risk register updated. Risk: "store removal". Mitigation: "hope".',
+    'The address is the same address. The verification is a different story.',
+    'CI is green. The Play Console is red. Only one of these matters today.',
+    'Reminder sent. Reminder archived. Archive full.',
+    'We have escalated this to the people who were already CC\'d.',
+    'Every release ships on time. The one form does not.',
+  ];
+  const OVER_LINES = [
+    'It is done.',
+    'The apps have been removed. The approval to prevent it is still pending.',
+    'Retro scheduled. Blameless. Also ownerless.',
+    'Schrödinger\'s developer profile: open the Play Console to collapse the wave function.',
+    'Management: "Why weren\'t we told?" The thread: 47 replies.',
+    'Users: "The app is gone?" Support: "Have you tried restarting your phone?"',
+    'Lessons learned: 1. Click buttons. 2. See 1.',
+    'The countdown has ended. The countdown to the next warning has begun.',
+    'Good news: no more Play Console warnings. Bad news: no more Play Console.',
+  ];
+
+  let tickerTimer = null, typeTimer = null, idx = 0;
+  function typeLine(text, done) {
+    const el = $('line');
+    el.textContent = '';
+    let i = 0;
+    clearInterval(typeTimer);
+    typeTimer = setInterval(() => {
+      el.textContent = text.slice(0, ++i);
+      if (i >= text.length) { clearInterval(typeTimer); done && done(); }
+    }, 28);
+  }
+  function restartTicker() {
+    clearTimeout(tickerTimer); clearInterval(typeTimer);
+    const lines = body.classList.contains('over') ? OVER_LINES : LIVE_LINES;
+    idx = Math.floor(Math.random() * lines.length);
+    const next = () => {
+      typeLine(lines[idx % lines.length], () => { tickerTimer = setTimeout(next, 5200); });
+      idx++;
+    };
+    next();
+  }
+
+  // ---- escalate ----------------------------------------------------------
+  const REPLIES = [
+    'Noted.', 'Let\'s circle back on this.', 'Can you put it on the roadmap?', 'Is this blocking?',
+    'Who owns this?', 'Let\'s take this offline.', 'Add it to the agenda.', '👀', 'Thanks for flagging!',
+    'Can we get a one-pager?', 'What\'s the business impact?', 'Let\'s sync next week.', 'Looping in the right people.',
+    'Is there a workaround?', 'Can this wait until after the release?', 'Great catch. Parking it for now.',
+    'Out of office until the 15th.', 'Sorry, which app?', 'Did we ever verify in the first place?',
+  ];
+  const store = {
+    get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  };
+  let sent = store.get('doom.sent', 0);
+  $('sent').textContent = sent;
+
+  let toastTimer = null;
+  function toast(msg, from) {
+    const t = $('toast');
+    t.querySelector('.from').textContent = from || 'Reply from upper management';
+    $('toast-msg').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  $('escalate').addEventListener('click', () => {
+    sent++; store.set('doom.sent', sent);
+    $('sent').textContent = sent;
+    $('replies').textContent = 0; // auto-replies don't count
+    toast(REPLIES[Math.floor(Math.random() * REPLIES.length)]);
+  });
+
+  $('share').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(location.href); toast('Link copied. Forward it to someone with a credit card and a passport.', 'Clipboard'); }
+    catch { toast(location.href, 'Copy this'); }
+  });
+
+  // ---- respects ----------------------------------------------------------
+  let respects = store.get('doom.respects', 0);
+  $('respects').textContent = respects;
+  window.addEventListener('keydown', (e) => {
+    if ((e.key === 'f' || e.key === 'F') && body.classList.contains('over')) {
+      respects++; store.set('doom.respects', respects);
+      $('respects').textContent = respects;
+    }
+  });
+
+  // ---- falling apps ------------------------------------------------------
+  const canvas = $('void');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduce) {
+    const ctx = canvas.getContext('2d');
+    const COLORS = ['#34a853', '#4285f4', '#fbbc05', '#ea4335', '#8e44ad', '#1abc9c', '#e67e22', '#ff6f91'];
+    let w, h, dpr, apps = [];
+    function resize() {
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      w = canvas.width = innerWidth * dpr; h = canvas.height = innerHeight * dpr;
+      canvas.style.width = innerWidth + 'px'; canvas.style.height = innerHeight + 'px';
+    }
+    resize(); addEventListener('resize', resize);
+    function spawn() {
+      const size = (10 + Math.random() * 22) * dpr;
+      apps.push({
+        x: Math.random() * w, y: -size * 2, size,
+        vy: (0.4 + Math.random() * 1.1) * dpr, vx: (Math.random() - .5) * .3 * dpr,
+        rot: Math.random() * Math.PI, vr: (Math.random() - .5) * .04,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)], life: 1,
+      });
+    }
+    let lastSpawn = 0;
+    function frame(t) {
+      if (document.hidden) { requestAnimationFrame(frame); return; }
+      const over = body.classList.contains('over');
+      const rate = over ? 90 : body.classList.contains('doom') ? 140 : body.classList.contains('panic') ? 260 : 520;
+      if (t - lastSpawn > rate && apps.length < 160) { lastSpawn = t; spawn(); }
+      ctx.clearRect(0, 0, w, h);
+      apps = apps.filter(a => a.life > 0);
+      for (const a of apps) {
+        a.y += a.vy; a.x += a.vx; a.rot += a.vr;
+        if (a.y > h * 0.72) a.life -= 0.012;
+        ctx.save();
+        ctx.translate(a.x, a.y); ctx.rotate(a.rot);
+        ctx.globalAlpha = Math.max(0, a.life) * 0.55;
+        ctx.fillStyle = a.color;
+        const r = a.size * .22, s = a.size;
+        ctx.beginPath();
+        ctx.moveTo(-s/2 + r, -s/2); ctx.lineTo(s/2 - r, -s/2); ctx.quadraticCurveTo(s/2, -s/2, s/2, -s/2 + r);
+        ctx.lineTo(s/2, s/2 - r); ctx.quadraticCurveTo(s/2, s/2, s/2 - r, s/2);
+        ctx.lineTo(-s/2 + r, s/2); ctx.quadraticCurveTo(-s/2, s/2, -s/2, s/2 - r);
+        ctx.lineTo(-s/2, -s/2 + r); ctx.quadraticCurveTo(-s/2, -s/2, -s/2 + r, -s/2);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,.75)';
+        ctx.beginPath(); ctx.arc(0, 0, s * .16, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  tick();
+  setInterval(tick, 250);
+})();
+</script>
+</body>
+</html>
