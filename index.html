@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Play Doomsday Clock</title>
-<meta name="description" content="A countdown to the day our developer profile and all apps get removed from Google Play. Action required. Action taken: none.">
+<meta name="description" content="A doomsday clock for the Play Console warning upper management doesn&#39;t fix. Sometimes they do. Then it waits.">
 <meta property="og:title" content="☠ Play Doomsday Clock">
-<meta property="og:description" content="Your developer profile and all apps will be removed from Google Play on October 14, 2026. Upper management has been notified. Upper management has gone to lunch.">
+<meta property="og:description" content="A doomsday clock for the Play Console warning upper management doesn&#39;t fix. Sometimes they do. Then it waits.">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#050507">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%98%A0%EF%B8%8F%3C/text%3E%3C/svg%3E">
@@ -26,6 +26,9 @@
     --blood-glow: rgba(255, 45, 42, 0.55);
     --ember: #ff8a3d;
     --ok: #5daa43;
+    --doom-red: #ff2d2a;
+    --doom-glow: rgba(255, 45, 42, 0.55);
+    --stamp: #3ddc84;
     --font-title: "Creepster", "Impact", system-ui, sans-serif;
     --font-mono: "Share Tech Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
     --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -231,7 +234,9 @@
   .fix { list-style: none; margin: 0; padding: 0; font-size: 14px; line-height: 1.7; }
   .fix li { display: flex; gap: 10px; align-items: flex-start; color: var(--fg); }
   .fix li .box { flex: none; width: 16px; height: 16px; border: 1.5px solid var(--muted); border-radius: 4px; margin-top: 4px; position: relative; }
-  .fix li.nope .box::after { content: "✕"; position: absolute; inset: 0; display: grid; place-items: center; color: var(--blood-2); font-size: 12px; font-weight: 800; }
+  .fix li.nope .box::after { content: "✕"; position: absolute; inset: 0; display: grid; place-items: center; color: var(--doom-red); font-size: 12px; font-weight: 800; }
+  .fix li.yes .box { border-color: var(--blood-2); }
+  .fix li.yes .box::after { content: "✓"; position: absolute; inset: 0; display: grid; place-items: center; color: var(--blood-2); font-size: 12px; font-weight: 800; }
   .fix li small { display: block; color: var(--muted); font-size: 12px; }
 
   /* --- escalate -------------------------------------------------------- */
@@ -283,6 +288,75 @@
   .tomb p { color: var(--muted); margin: 10px 0 0; }
   .tomb .f { font-family: var(--font-mono); margin-top: 14px; color: var(--fg); }
 
+  /* --- resolved state ------------------------------------------------- */
+  html.resolved [data-mode="active"],
+  html:not(.resolved) [data-mode="resolved"] { display: none !important; }
+
+  html.resolved body {
+    --blood: #1f7a45;
+    --blood-2: #3ddc84;
+    --blood-glow: rgba(61, 220, 132, 0.45);
+    background-image:
+      radial-gradient(ellipse at 50% -10%, rgba(61, 220, 132, 0.16), transparent 55%),
+      radial-gradient(ellipse at 50% 120%, rgba(197, 34, 31, 0.16), transparent 50%);
+  }
+  html.resolved .badge { animation: none; }
+  html.resolved h1 {
+    color: var(--doom-red);
+    text-shadow: 0 0 18px var(--doom-glow), 2px 2px 0 #3a0505;
+    filter: saturate(.5) brightness(.5);
+  }
+  html.resolved h1::before, html.resolved h1::after { color: var(--doom-red); }
+  html.resolved .num { color: var(--blood-2); text-shadow: 0 0 14px var(--blood-glow); }
+  html.resolved .clock { margin-top: 12px; }
+  html.resolved .title-wrap { margin: 8px 0 18px; }
+
+  .title-wrap { position: relative; overflow-x: clip; }
+  .stamp {
+    position: absolute; left: 50%; top: 52%;
+    transform: translate(-50%, -50%) rotate(-8deg);
+    display: flex; flex-direction: column; align-items: center; gap: .12em;
+    padding: .16em .45em .2em;
+    border: .08em solid currentColor; border-radius: .16em;
+    color: var(--stamp);
+    background: rgba(5, 5, 7, .45);
+    font: 800 clamp(28px, 6.4vw, 60px)/1 var(--font-body);
+    letter-spacing: .08em;
+    white-space: nowrap;
+    text-shadow: 0 0 18px var(--blood-glow);
+    box-shadow: 0 0 30px rgba(61, 220, 132, .25), inset 0 0 22px rgba(61, 220, 132, .18);
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -8 0 0 0 5.4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -8 0 0 0 5.4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    -webkit-mask-size: 240px 120px; mask-size: 240px 120px;
+    animation: stamp .42s cubic-bezier(.2, .9, .3, 1.25) .6s both;
+    pointer-events: none;
+  }
+  .stamp small { font: 600 max(8px, .2em)/1 var(--font-mono); letter-spacing: .32em; text-transform: uppercase; }
+  @keyframes stamp {
+    0%   { opacity: 0; transform: translate(-50%, -50%) rotate(-20deg) scale(2.8); }
+    70%  { opacity: 1; transform: translate(-50%, -50%) rotate(-7deg) scale(.94); }
+    100% { opacity: 1; transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+  }
+  body.thud .page { animation: shake .1s 3; }
+
+  .clock-caption {
+    margin: 40px 0 0; text-align: center;
+    font: 600 12px/1.4 var(--font-mono); letter-spacing: .24em; text-transform: uppercase; color: var(--muted);
+  }
+  .rip .z {
+    display: inline-block; margin-left: .08em;
+    font: 400 .38em/1 var(--font-mono); color: var(--muted);
+    opacity: 0; animation: z 2.4s infinite;
+  }
+  .rip .z:nth-of-type(2) { animation-delay: .8s; }
+  .rip .z:nth-of-type(3) { animation-delay: 1.6s; }
+  @keyframes z {
+    0%   { opacity: 0; transform: translate(0, 0); }
+    30%  { opacity: 1; }
+    100% { opacity: 0; transform: translate(.5em, -1.4em); }
+  }
+  .btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+  .stats .win { color: var(--blood-2); }
+
   @media (max-width: 640px) {
     .clock { grid-template-columns: repeat(2, 1fr); }
     .panels { grid-template-columns: 1fr; }
@@ -293,6 +367,24 @@
     #void { display: none; }
   }
 </style>
+<script>
+  // When the warning comes back: set STATUS to 'active' and DEADLINE to the new date from the notice.
+  // ?status=active|resolved and ?deadline=<ISO date> preview either state without editing.
+  window.DOOM = (() => {
+    const STATUS = 'resolved';
+    const DEADLINE = '2026-10-14T00:00:00+03:00'; // the notice gives a date only; start of day, Istanbul
+    const RESOLVED_AT = '2026-10-13T17:00:00+03:00'; // when we noticed the warning was gone
+    const q = new URLSearchParams(location.search);
+    const status = ['active', 'resolved'].includes(q.get('status')) ? q.get('status') : STATUS;
+    const override = new Date(q.get('deadline') || NaN);
+    document.documentElement.classList.toggle('resolved', status === 'resolved');
+    return {
+      resolved: status === 'resolved',
+      deadline: isNaN(override) ? new Date(DEADLINE) : override,
+      resolvedAt: new Date(RESOLVED_AT),
+    };
+  })();
+</script>
 </head>
 <body>
 <canvas id="void" aria-hidden="true"></canvas>
@@ -302,26 +394,36 @@
 
 <main class="page">
   <header>
-    <span class="badge"><span class="dot"></span> Action required</span>
-    <h1 data-text="DOOMSDAY CLOCK">DOOMSDAY CLOCK</h1>
-    <p class="sub only-live">
+    <span class="badge" data-mode="active"><span class="dot"></span> Action required</span>
+    <span class="badge" data-mode="resolved"><span class="dot"></span> Resolved · for now</span>
+    <div class="title-wrap">
+      <h1 data-text="DOOMSDAY CLOCK">DOOMSDAY CLOCK</h1>
+      <div class="stamp" data-mode="resolved" role="img" aria-label="Postponed until further notice">POSTPONED<small>until further notice</small></div>
+    </div>
+    <p class="sub" data-mode="resolved">
+      <strong>The warning is gone. Someone clicked the button.</strong><br>
+      Historians will debate who. The clock has been moved to standby, not to the bin.
+    </p>
+    <p class="sub only-live" data-mode="active">
       <strong>Your developer profile and all apps will be removed from Google Play on October 14, 2026.</strong><br>
       Verification takes about five minutes. The decision to do it has taken somewhat longer.
     </p>
-    <p class="sub only-over">
+    <p class="sub only-over" data-mode="active">
       <strong>October 14, 2026 has come and gone.</strong><br>
       The apps are gone. Or they aren't. Nobody has checked the Play Console, because nobody ever does.
     </p>
   </header>
 
+  <p class="clock-caption" data-mode="resolved">This organization has gone</p>
   <section class="clock" aria-live="off">
     <div class="cell"><div class="num" id="d">00</div><div class="lbl">days</div></div>
     <div class="cell"><div class="num" id="h">00</div><div class="lbl">hours</div></div>
     <div class="cell"><div class="num" id="m">00</div><div class="lbl">minutes</div></div>
     <div class="cell"><div class="num" id="s">00</div><div class="lbl">seconds</div></div>
   </section>
-  <p class="deadline-line only-live">until removal · <span id="deadline-local"></span></p>
-  <p class="deadline-line only-over">since removal · time flies when nobody is responsible</p>
+  <p class="deadline-line only-live" data-mode="active">until removal · <span id="deadline-local"></span></p>
+  <p class="deadline-line only-over" data-mode="active">since removal · time flies when nobody is responsible</p>
+  <p class="deadline-line" data-mode="resolved">without a Play Console incident · previous record: <span>0 days</span></p>
 
   <section class="meter">
     <div class="meter-head">
@@ -336,7 +438,13 @@
     <span class="prompt">&gt;</span> <span id="line"></span><span class="cursor"></span>
   </section>
 
-  <section class="tomb only-over">
+  <section class="tomb" data-mode="resolved">
+    <p class="rip">Standby<span class="z">z</span><span class="z">z</span><span class="z">Z</span></p>
+    <p>The clock isn't dead. It's sleeping, like everyone did for the first 89 days of the warning.</p>
+    <p class="f">Odds the warning comes back: 104% · Time to restart the clock: one line of code</p>
+  </section>
+
+  <section class="tomb only-over" data-mode="active">
     <p class="rip">R.I.P.</p>
     <p>Here lie the apps. Removed for a form nobody filled in.</p>
     <p class="f">Press <kbd>F</kbd> to pay respects · respects paid: <span id="respects">0</span></p>
@@ -353,33 +461,53 @@
         <li data-t="14"><b>T-14d</b>"Let's handle it next sprint." Sprint ends. It is handled by no one.</li>
         <li data-t="7"><b>T-7d</b>"Who owns this?" Silence. The silence owns this.</li>
         <li data-t="3"><b>T-3d</b>Developer builds a countdown website instead of sleeping.</li>
-        <li data-t="1"><b>T-1d</b>Someone finally clicks "View details". They close the tab.</li>
-        <li data-t="0"><b>T-0</b>Removal. Management: "Why weren't we told?"</li>
-        <li data-t="-1"><b>T+1d</b>Retro scheduled. Action item: "Be more proactive." Owner: TBD.</li>
+        <li data-t="1" data-mode="active"><b>T-1d</b>Someone finally clicks "View details". They close the tab.</li>
+        <li data-t="0" data-mode="active"><b>T-0</b>Removal. Management: "Why weren't we told?"</li>
+        <li data-t="-1" data-mode="active"><b>T+1d</b>Retro scheduled. Action item: "Be more proactive." Owner: TBD.</li>
+        <li data-mode="resolved" data-state="done"><b>~T-1d</b>Someone with the right login clicks the red button, fills in the form and presses Submit. Witnesses gasp.</li>
+        <li data-mode="resolved" data-state="done"><b>~T-1d</b>The warning vanishes. Nobody believes it. The console gets refreshed 14 times.</li>
+        <li data-mode="resolved" data-state="now"><b>Now</b>Clock on standby. One eye on the console, one hand on the countdown.</li>
+        <li data-mode="resolved" data-state="future"><b>Later</b>The warning comes back. The clock was ready.</li>
       </ul>
     </div>
     <div class="panel">
       <h3>Remediation plan</h3>
-      <ul class="fix">
+      <ul class="fix" data-mode="active">
         <li class="nope"><span class="box"></span><span>Click "View details"<small>Blocked: button is red, which feels aggressive.</small></span></li>
         <li class="nope"><span class="box"></span><span>Re-verify organization name and address<small>Blocked: we need to align on which address we are.</small></span></li>
         <li class="nope"><span class="box"></span><span>Upload one (1) document<small>Blocked: legal is reviewing whether the document exists.</small></span></li>
         <li class="nope"><span class="box"></span><span>Press "Submit"<small>Blocked: pending approval to seek approval.</small></span></li>
         <li><span class="box"></span><span>Build a countdown page about it<small>✓ Done. Priorities.</small></span></li>
       </ul>
+      <ul class="fix" data-mode="resolved">
+        <li class="yes"><span class="box"></span><span>Click "View details"<small>Done. The button was red. Someone was brave.</small></span></li>
+        <li class="yes"><span class="box"></span><span>Re-verify organization name and address<small>Done. Turns out we live at our address.</small></span></li>
+        <li class="yes"><span class="box"></span><span>Upload one (1) document<small>Done. The document existed all along.</small></span></li>
+        <li class="yes"><span class="box"></span><span>Press "Submit"<small>Done. The approval was approved.</small></span></li>
+        <li class="yes"><span class="box"></span><span>Build a countdown page about it<small>Done. Promoted to monitoring tool.</small></span></li>
+        <li class="nope"><span class="box"></span><span>Set a reminder for next time<small>Blocked: who owns the reminder?</small></span></li>
+      </ul>
     </div>
   </section>
 
   <section class="escalate">
-    <button class="btn" id="escalate" type="button">🚨 Escalate to upper management</button>
-    <button class="btn secondary" id="share" type="button">Copy link</button>
-    <p class="stats">Escalations sent: <b id="sent">0</b> · Replies received: <b class="zero" id="replies">0</b> · Problems solved: <b class="zero">0</b></p>
+    <div class="btns">
+      <button class="btn" id="escalate" type="button" data-mode="active">🚨 Escalate to upper management</button>
+      <button class="btn" id="thank" type="button" data-mode="resolved">🎉 Thank upper management</button>
+      <button class="btn secondary" id="nervous" type="button" data-mode="resolved">🔄 Check the console again</button>
+      <button class="btn secondary" id="share" type="button">Copy link</button>
+    </div>
+    <p class="stats" data-mode="resolved">Thank-yous sent: <b id="thanks">0</b> · Nervous refreshes: <b id="refreshes">0</b> · Credit claimed by upper management: <b>100%</b> · Problems solved: <b class="win">1</b></p>
+    <p class="stats" data-mode="active">Escalations sent: <b id="sent">0</b> · Replies received: <b class="zero" id="replies">0</b> · Problems solved: <b class="zero">0</b></p>
   </section>
 
   <footer>
-    Not affiliated with Google. Not affiliated with anyone with signing authority, which is the whole problem.<br>
+    <span data-mode="active">Not affiliated with Google. Not affiliated with anyone with signing authority, which is the whole problem.<br>
     Deadline assumed at 00:00 Istanbul time on October 14, 2026, because the email didn't say.<br>
-    Made with 😱 by a developer who is not allowed to click the button.
+    Made with 😱 by a developer who is not allowed to click the button.</span>
+    <span data-mode="resolved">Not affiliated with Google. Briefly affiliated with someone who clicked the button.<br>
+    Doomsday postponed, not cancelled. If the warning comes back, so does the countdown.<br>
+    Made with 😮‍💨 by a developer who is cautiously allowed to sleep again.</span>
   </footer>
 </main>
 
@@ -387,10 +515,7 @@
 
 <script>
 (() => {
-  // The notice only says "October 14, 2026". Start of day, Istanbul time.
-  // ?deadline=<ISO date> previews another date (e.g. the aftermath).
-  const override = new Date(new URLSearchParams(location.search).get('deadline') || NaN);
-  const DEADLINE = isNaN(override) ? new Date('2026-10-14T00:00:00+03:00') : override;
+  const { resolved: RESOLVED, deadline: DEADLINE, resolvedAt: RESOLVED_AT } = window.DOOM;
   const HORIZON_DAYS = 30; // the panic meter fills over the last 30 days
 
   const $ = (id) => document.getElementById(id);
@@ -428,7 +553,23 @@
   }
 
   let wasOver = null;
+  // Counts up like a "days without an incident" sign.
+  function tickResolved() {
+    const diff = Math.max(0, Date.now() - RESOLVED_AT);
+    const d = Math.floor(diff / 864e5), h = Math.floor(diff / 36e5) % 24;
+    setNum('d', d);
+    setNum('h', h);
+    setNum('m', Math.floor(diff / 6e4) % 60);
+    setNum('s', Math.floor(diff / 1e3) % 60);
+    $('level').textContent = 'Suspicious calm';
+    $('level-note').textContent = 'Everything is fine. That is exactly what worries us.';
+    $('fill').style.width = '7%';
+    if (wasOver === null) { wasOver = false; restartTicker(); }
+    document.title = `✅ ${pad(d)}d ${pad(h)}h without incident — Play Doomsday Clock`;
+  }
+
   function tick() {
+    if (RESOLVED) return tickResolved();
     let diff = DEADLINE - Date.now();
     const over = diff <= 0;
     if (over) diff = -diff;
@@ -497,6 +638,22 @@
     'The countdown has ended. The countdown to the next warning has begun.',
     'Good news: no more Play Console warnings. Bad news: no more Play Console.',
   ];
+  const RESOLVED_LINES = [
+    'Status: resolved. Panic: also resolved. Trust: pending.',
+    'Upper management clicked the button. Witnesses are being interviewed.',
+    'Verification took five minutes, as the prophecy foretold.',
+    'Fixed with under 48 hours to spare. Leadership is calling it "agile".',
+    'The warning is gone. The trauma remains.',
+    'Standing down from DEFCON 2. The bunker stays stocked.',
+    'The "View details" button has finally been viewed. It cried a little.',
+    'Monitoring the Play Console. The Play Console is monitoring us back.',
+    'Next deadline: unknown. Next countdown page: already written.',
+    'Lessons learned: pending. Owner: TBD. Some things never change.',
+    'Good news: the apps stay. Bad news: so do the meetings.',
+    'Reminder: Google never sends a warning just once.',
+    'It was always going to be fine, say the people who did nothing for 89 days.',
+    'Doomsday has been rescheduled. Please hold.',
+  ];
 
   let tickerTimer = null, typeTimer = null, idx = 0;
   function typeLine(text, done) {
@@ -511,7 +668,7 @@
   }
   function restartTicker() {
     clearTimeout(tickerTimer); clearInterval(typeTimer);
-    const lines = body.classList.contains('over') ? OVER_LINES : LIVE_LINES;
+    const lines = RESOLVED ? RESOLVED_LINES : body.classList.contains('over') ? OVER_LINES : LIVE_LINES;
     idx = Math.floor(Math.random() * lines.length);
     const next = () => {
       typeLine(lines[idx % lines.length], () => { tickerTimer = setTimeout(next, 5200); });
@@ -552,6 +709,33 @@
     toast(REPLIES[Math.floor(Math.random() * REPLIES.length)]);
   });
 
+  const THANK_REPLIES = [
+    'You\'re welcome.', 'We were on it the whole time.', 'Told you it would be fine.', 'Let\'s not make this a habit.',
+    'Can the countdown page come down now?', 'What warning?', 'Adding this to the wins slide.',
+    'Great teamwork, everyone. Mostly us.', 'Please stop refreshing the console.', 'We\'ll circle back when it happens again.',
+    'Happy to help. Next time, give us more notice.', 'Noted. 👍',
+  ];
+  const CONSOLE_REPLIES = [
+    'No warnings. Suspicious.', 'Still verified. Probably.', 'All clear. Check again in five minutes.',
+    'Nothing to see here. That\'s what it wants you to think.', 'Verified ✓ (for now).',
+    'Account in good standing. Sleep with one eye open.', 'No action required. Enjoy it while it lasts.',
+  ];
+  const pick = (list) => list[Math.floor(Math.random() * list.length)];
+  const counter = (key, id) => {
+    let n = store.get(key, 0);
+    $(id).textContent = n;
+    return () => { store.set(key, ++n); $(id).textContent = n; };
+  };
+  const bumpThanks = counter('doom.thanks', 'thanks');
+  const bumpRefreshes = counter('doom.refreshes', 'refreshes');
+  $('thank').addEventListener('click', () => { bumpThanks(); toast(pick(THANK_REPLIES)); });
+  $('nervous').addEventListener('click', () => { bumpRefreshes(); toast(pick(CONSOLE_REPLIES), 'Console, refreshed'); });
+
+  document.querySelector('.stamp').addEventListener('animationend', () => {
+    body.classList.add('thud');
+    setTimeout(() => body.classList.remove('thud'), 400);
+  });
+
   $('share').addEventListener('click', async () => {
     try { await navigator.clipboard.writeText(location.href); toast('Link copied. Forward it to someone with a credit card and a passport.', 'Clipboard'); }
     catch { toast(location.href, 'Copy this'); }
@@ -582,9 +766,11 @@
     resize(); addEventListener('resize', resize);
     function spawn() {
       const size = (10 + Math.random() * 22) * dpr;
+      // Resolved: the apps float back up into the store.
+      const dir = RESOLVED ? -1 : 1;
       apps.push({
-        x: Math.random() * w, y: -size * 2, size,
-        vy: (0.4 + Math.random() * 1.1) * dpr, vx: (Math.random() - .5) * .3 * dpr,
+        x: Math.random() * w, y: RESOLVED ? h + size * 2 : -size * 2, size,
+        vy: dir * (0.4 + Math.random() * 1.1) * dpr, vx: (Math.random() - .5) * .3 * dpr,
         rot: Math.random() * Math.PI, vr: (Math.random() - .5) * .04,
         color: COLORS[Math.floor(Math.random() * COLORS.length)], life: 1,
       });
@@ -593,13 +779,13 @@
     function frame(t) {
       if (document.hidden) { requestAnimationFrame(frame); return; }
       const over = body.classList.contains('over');
-      const rate = over ? 90 : body.classList.contains('doom') ? 140 : body.classList.contains('panic') ? 260 : 520;
+      const rate = RESOLVED ? 650 : over ? 90 : body.classList.contains('doom') ? 140 : body.classList.contains('panic') ? 260 : 520;
       if (t - lastSpawn > rate && apps.length < 160) { lastSpawn = t; spawn(); }
       ctx.clearRect(0, 0, w, h);
       apps = apps.filter(a => a.life > 0);
       for (const a of apps) {
         a.y += a.vy; a.x += a.vx; a.rot += a.vr;
-        if (a.y > h * 0.72) a.life -= 0.012;
+        if (RESOLVED ? a.y < h * 0.3 : a.y > h * 0.72) a.life -= 0.012;
         ctx.save();
         ctx.translate(a.x, a.y); ctx.rotate(a.rot);
         ctx.globalAlpha = Math.max(0, a.life) * 0.55;
@@ -620,6 +806,7 @@
     requestAnimationFrame(frame);
   }
 
+  if (RESOLVED) document.querySelectorAll('#log li').forEach(li => li.classList.add(li.dataset.state || 'done'));
   tick();
   setInterval(tick, 250);
 })();
